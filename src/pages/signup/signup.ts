@@ -1,10 +1,11 @@
 import { Component } from '@angular/core';
-import { IonicPage, NavController, NavParams } from 'ionic-angular';
+import { AlertController, IonicPage, NavController, NavParams } from 'ionic-angular';
 import { FormGroup, FormBuilder, Validators } from '@angular/forms';
 import { CidadeService } from '../../services/domain/cidade.service';
 import { EstadoService } from '../../services/domain/estado.service';
 import { EstadoDTO } from '../../models/estado.dto';
 import { CidadeDTO } from '../../models/cidade.dto';
+import { ClienteService } from '../../services/domain/cliente.service';
 
 @IonicPage()
 @Component({
@@ -22,14 +23,16 @@ export class SignupPage {
     public navParams: NavParams,
     public formBuilder: FormBuilder,
     public cidadeService: CidadeService,
-    public estadoService: EstadoService) {
+    public estadoService: EstadoService,
+    public clienteService: ClienteService,
+    public alertCrtl: AlertController) {
 
     this.formGroup = this.formBuilder.group({
       nome: ['Geovanni', [Validators.required, Validators.minLength(5), Validators.maxLength(120)]],
       email: ['geovanni@gmail.com', [Validators.required, Validators.email]],
       tipo: ['1', [Validators.required]],
-      cpfOuCnpj: ['06134596280', [Validators.required, Validators.minLength(11), Validators.maxLength(14)]],
       senha: ['123', [Validators.required]],
+      cpfOuCnpj: ['06134596280', [Validators.required, Validators.minLength(11), Validators.maxLength(14)]],
       logradouro: ['Rua Via', [Validators.required]],
       numero: ['25', [Validators.required]],
       complemento: ['Apto 3', []],
@@ -64,6 +67,27 @@ export class SignupPage {
   }
 
   signupUser() {
-    console.log("enviou o form");
+    console.log(this.formGroup.value)
+    this.clienteService.insert(this.formGroup.value)
+    .subscribe(response => {
+      this.showInsertOk();
+    },
+    error => {});
+  }
+  showInsertOk() {
+    let alert = this.alertCrtl.create({
+      title:'Sucesso',
+      message:'Salvo com sucesso',
+      enableBackdropDismiss:false,
+      buttons:[
+        {
+          text:'Ok',
+          handler:()=>{
+            this.navCtrl.pop()
+          }
+        }
+      ]
+    })
+    alert.present();
   }
 }
